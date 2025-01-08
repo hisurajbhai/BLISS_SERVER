@@ -6,6 +6,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, Input
 from tensorflow.keras.utils import to_categorical
 import kagglehub
+import tensorflow as tf
 
 # Function to download dataset
 def download_dataset():
@@ -63,14 +64,35 @@ def load_data(data_dir):
 
     return X, y
 
+# Add this code to generate dummy data for testing
+def create_dummy_data():
+    # Create dummy images (48x48 pixels, grayscale)
+    X = np.random.rand(100, 48, 48, 1)
+    # Create dummy labels (7 emotions)
+    y = np.random.randint(0, 7, 100)
+    # Convert to one-hot encoding
+    y = tf.keras.utils.to_categorical(y, num_classes=7)
+    return X, y
+
 # Training function
 def train_model():
-    X, y = load_data(r"C:\Users\prate\Emotion_Detc_Model\emotion_detection_project\data")
-
     model = create_emotion_model((48, 48, 1))
-    model.fit(X, y, epochs=25, validation_split=0.2)  # Use validation split instead of separate test data
-    # model.save('app/model/emotion_model.h5')
-    model.save('app/model/emotion_model.keras')  # Save in the new Keras format
+    
+    # Get data
+    X, y = create_dummy_data()
+    
+    # Compile model with categorical_crossentropy
+    model.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    
+    # Train model
+    model.fit(X, y, epochs=25, validation_split=0.2)
+    
+    # Save model
+    model.save('emotion_model.keras')
     print("Model training complete and saved as 'emotion_model.keras'")
 
 if __name__ == "__main__":
